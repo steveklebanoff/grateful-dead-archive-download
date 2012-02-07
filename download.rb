@@ -4,7 +4,12 @@ require 'progressbar'
 # Downloads a remote file and outputs progress using block
 def download_with_progress(remote_file, local_file)
   if File.exists?(local_file)
-    return "File exists, skipping"
+    puts "File exists, skipping"
+    return false
+  end
+  
+  unless FileTest::directory?(File.dirname(local_file))
+    Dir::mkdir(File.dirname(local_file))
   end
   
   progress_bar = nil
@@ -18,7 +23,7 @@ def download_with_progress(remote_file, local_file)
                     :progress_proc => lambda{|size|
                       progress_bar.set size if progress_bar
                     })
-  File.open(local_file, 'w') {|file| file.puts remote_file.read}
+  File.open(local_file, 'w') {|file| file.write remote_file.read}
   
 end
 
@@ -62,10 +67,10 @@ def download_songs(show_id, type, base_directory)
   # WARN: Assumes that all files in list are in same directory
   dir = "#{base_directory}/#{File.split(File.dirname(songs.first))[1]}/"
   
-  songs.each do |song|
-    puts "Downloading #{song}"
-    puts "#{dir}#{File.basename(song)}"
-    #download_with_progress(song, "#{dir}#{File.basename(song)}")
+  songs.each do |remote_song_path|
+    local_file_path = "#{dir}#{File.basename(remote_song_path)}"
+    puts "Downloading #{remote_song_path} to #{local_file_path}"
+    download_with_progress(remote_song_path, local_file_path)
   end
 end
 
