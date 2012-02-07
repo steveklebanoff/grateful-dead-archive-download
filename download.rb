@@ -3,6 +3,10 @@ require 'progressbar'
 
 # Downloads a remote file and outputs progress using block
 def download_with_progress(remote_file, local_file)
+  if File.exists?(local_file)
+    return "File exists, skipping"
+  end
+  
   progress_bar = nil
   remote_file = open(remote_file,
                     :content_length_proc => lambda {|content_length|
@@ -33,8 +37,8 @@ def urls_of_songs(show_id, type)
   download_directory = "http://www.archive.org/download/#{show_id}/"
   song_urls = []
   open(download_directory) do |file|
-    line_regex = Regexp.new('<a href="(.*)' + get_end_of_file_name(type) +
-                            '">.*<\/a>.*([0-9]{2}-[A-Za-z]*-[0-9]{4}).*([0-9]{2}:[0-9]{2})(.*)')
+    line_regex = Regexp.new('<a href="(.*' + get_end_of_file_name(type) +
+                            ')">.*<\/a>.*([0-9]{2}-[A-Za-z]*-[0-9]{4}).*([0-9]{2}:[0-9]{2})(.*)')
     file.each_line do |line|
       regex_match = line.match(line_regex)
       if !regex_match.nil?
@@ -47,7 +51,7 @@ def urls_of_songs(show_id, type)
 end
 
 # Downloads all songs given a show identifier, type, and directory
-def download_songs(show_id, type, directory)
+def download_songs(show_id, type, base_directory)
   songs = urls_of_songs(show_id, type)
   
   if songs.empty?
@@ -55,9 +59,14 @@ def download_songs(show_id, type, directory)
     return
   end
   
+  # WARN: Assumes that all files in list are in same directory
+  dir = "#{base_directory}/#{File.split(File.dirname(songs.first))[1]}/"
+  
   songs.each do |song|
-    puts song
+    puts "Downloading #{song}"
+    puts "#{dir}#{File.basename(song)}"
+    #download_with_progress(song, "#{dir}#{File.basename(song)}")
   end
 end
 
-download_songs('gd78-04-24.sbd.mattman.20605.sbeok.shnf', 'vbr', nil)
+download_songs('gd78-04-24.sbd.mattman.20605.sbeok.shnf', 'vbr', 'files')
