@@ -18,5 +18,46 @@ def download_with_progress(remote_file, local_file)
   
 end
 
-download_with_progress("http://headyversion.com/media/images/green_logo_header.png",
-                       "files/test.png")
+# Gets end of file extension for format
+def get_end_of_file_name(type)
+  if type == "ogg" || type == "shn"
+    return ".#{type}"
+  elsif type == "64kb" or type == "vbr"
+    return "_#{type}.mp3"
+  end
+  raise ArgumentError, "Incorrect Argument"
+end
+
+# Returns array  of all files in a specific directory for a given identifier & type
+def urls_of_songs(show_id, type)
+  download_directory = "http://www.archive.org/download/#{show_id}/"
+  song_urls = []
+  open(download_directory) do |file|
+    line_regex = Regexp.new('<a href="(.*)' + get_end_of_file_name(type) +
+                            '">.*<\/a>.*([0-9]{2}-[A-Za-z]*-[0-9]{4}).*([0-9]{2}:[0-9]{2})(.*)')
+    file.each_line do |line|
+      regex_match = line.match(line_regex)
+      if !regex_match.nil?
+        song_urls.push("#{download_directory}#{regex_match.to_a[1]}") # TODO: add file size gotten from list?
+      end
+    end
+  end
+
+  song_urls
+end
+
+# Downloads all songs given a show identifier, type, and directory
+def download_songs(show_id, type, directory)
+  songs = urls_of_songs(show_id, type)
+  
+  if songs.empty?
+    puts "No songs found"
+    return
+  end
+  
+  songs.each do |song|
+    puts song
+  end
+end
+
+download_songs('gd78-04-24.sbd.mattman.20605.sbeok.shnf', 'vbr', nil)
