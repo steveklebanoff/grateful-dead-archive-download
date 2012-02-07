@@ -74,4 +74,5 @@ def download_songs(show_id, type, base_directory)
   end
 end
 
-download_songs('gd78-04-24.sbd.mattman.20605.sbeok.shnf', 'vbr', 'files')
+
+download_songs(ARGV[0], ARGV[1] || "vbr", ARGV[2] || "files")
