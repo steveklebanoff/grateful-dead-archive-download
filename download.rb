@@ -65,7 +65,7 @@ def download_songs(show_id, type, base_directory)
   end
   
   # WARN: Assumes that all files in list are in same directory
-  dir = "#{base_directory}/#{File.split(File.dirname(songs.first))[1]}/"
+  dir = "#{base_directory}#{File.split(File.dirname(songs.first))[1]}/"
   
   songs.each do |remote_song_path|
     local_file_path = "#{dir}#{File.basename(remote_song_path)}"
@@ -75,4 +75,4 @@ def download_songs(show_id, type, base_directory)
 end
 
 
-download_songs(ARGV[0], ARGV[1] || "vbr", ARGV[2] || "files")
+download_songs(ARGV[0], ARGV[1] || "vbr", ARGV[2] || "files/")
