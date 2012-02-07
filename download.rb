@@ -14,7 +14,9 @@ def download_with_progress(remote_file, local_file)
                     :progress_proc => lambda{|size|
                       progress_bar.set size if progress_bar
                     })
+  File.open(local_file, 'w') {|file| file.puts remote_file.read}
+  
 end
 
-download_with_progress("http://ia700201.us.archive.org/19/items/gd78-04-24.sbd.mattman.20605.sbeok.shnf/gd1978-04-24d1t10_vbr.mp3",
-                       "files/test.html")
+download_with_progress("http://headyversion.com/media/images/green_logo_header.png",
+                       "files/test.png")
